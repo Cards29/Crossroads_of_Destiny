@@ -18,5 +18,12 @@
     <ClCompile Include="Crossroads_of_Destiny.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="temp2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="decision_tree.json" />
   </ItemGroup>
 </Project>

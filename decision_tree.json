@@ -1,0 +1,53 @@
+{
+  "start": {
+    "question": "Do you remain loyal to the British or join the rebellion?",
+    "choices": [
+      {
+        "text": "Remain Loyal",
+        "next": "loyal_path"
+      },
+      {
+        "text": "Join the Rebellion",
+        "next": "rebel_path"
+      }
+    ]
+  },
+  "loyal_path": {
+    "question": "Will you actively suppress the rebellion or request safer duties?",
+    "choices": [
+      {
+        "text": "Actively Suppress",
+        "next": "suppress_ending"
+      },
+      {
+        "text": "Request Safer Duties",
+        "next": "safer_ending"
+      }
+    ]
+  },
+  "suppress_ending": {
+    "outcome": "You distinguish yourself in battle and are promoted to Havildar. However, you witness the brutal atrocities committed by the British, and you are forever haunted by your actions."
+  },
+  "safer_ending": {
+    "outcome": "You survive the conflict, and are discharged after the rebellion is crushed. You live a quiet life, but always wonder if you could have done more."
+  },
+  "rebel_path": {
+    "question": "Will you fight bravely in battle or try to rally more troops?",
+    "choices": [
+      {
+        "text": "Fight Bravely",
+        "next": "brave_ending"
+      },
+      {
+        "text": "Rally Troops",
+        "next": "rally_ending"
+      }
+    ]
+  },
+  "brave_ending": {
+    "outcome": "You fight bravely in the rebellion, but it is ultimately crushed. You are captured and executed by the British. Your sacrifice will be remembered."
+  },
+  "rally_ending": {
+    "outcome": "You successfully rally a large number of troops, and fight bravely. Although the rebellion is put down, the british government is forced to give the indian people more rights. You have made a difference."
+  }
+}
