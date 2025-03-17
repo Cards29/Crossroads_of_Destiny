@@ -4,27 +4,24 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <fstream>
-#include "nlohmann/json.hpp"
 
 using namespace std;
-using json = nlohmann::json;
 
 // -------------------- MapManager Class --------------------
 class MapManager {
 private:
-    map<string, sf::Texture> textures;
+    std::map<std::string, sf::Texture> textures;
 public:
-    bool loadMap(const string& id, const string& filepath) {
+    bool loadMap(const std::string& id, const std::string& filepath) {
         sf::Texture texture;
         if (!texture.loadFromFile(filepath)) {
-            cout << "Failed to load map \"" << id << "\" from " << filepath << endl;
+            std::cout << "Failed to load map \"" << id << "\" from " << filepath << std::endl;
             return false;
         }
         textures[id] = texture;
         return true;
     }
-    const sf::Texture& getTexture(const string& id) const {
+    const sf::Texture& getTexture(const std::string& id) const {
         return textures.at(id);
     }
 };
@@ -34,21 +31,19 @@ struct DecisionNode;
 
 class DecisionOption {
 public:
-    string text;
+    std::string text; 
     int moraleEffect;
     int resourceEffect;
     int influenceEffect;
-    string historicalContext;
-    string mapID;
-    DecisionNode* nextNode;
-    string outcome;
+    std::string historicalContext;
+    std::string mapID;
+    DecisionNode* nextNode;   
+    std::string outcome;
 };
 
 struct DecisionNode {
-    string question;
-    string historicalContext;
-    string historicalContext_b;
-    vector<DecisionOption> options;
+    std::string question;
+    std::vector<DecisionOption> options; 
 };
 
 // -------------------- Revolution Class --------------------
@@ -79,10 +74,10 @@ public:
     }
 
     void displayAttributes() const {
-        cout << "Morale: " << morale
+        std::cout << "Morale: " << morale
             << " | Resources: " << resources
             << " | Influence: " << influence
-            << endl;
+            << std::endl;
     }
 };
 
@@ -93,9 +88,9 @@ void drawAttributes(sf::RenderWindow& window, sf::Font& font, const Revolution& 
     attributes.setCharacterSize(30);
     attributes.setFillColor(sf::Color::Black);
 
-    string attrText = "Morale: " + to_string(rev.getMorale()) +
-        "\nResources: " + to_string(rev.getResources()) +
-        "\nInfluence: " + to_string(rev.getInfluence());
+    std::string attrText = "Morale: " + std::to_string(rev.getMorale()) +
+        "\nResources: " + std::to_string(rev.getResources()) +
+        "\nInfluence: " + std::to_string(rev.getInfluence());
 
     attributes.setString(attrText);
     attributes.setPosition(window.getSize().x - 300, window.getSize().y - 300);
@@ -103,14 +98,14 @@ void drawAttributes(sf::RenderWindow& window, sf::Font& font, const Revolution& 
 }
 
 void updateMapSprite(sf::Sprite& mapSprite, const sf::RenderWindow& window) {
-    mapSprite.setScale(0.5f, 0.5f);
+    mapSprite.setScale(2.0f, 2.0f);
     mapSprite.setPosition(window.getSize().x - mapSprite.getGlobalBounds().width - 20, 20);
 }
 
 void traverseDecisionTree(sf::RenderWindow& window, DecisionNode* node, Revolution& rev,
     sf::Sprite& mapSprite, MapManager& mapManager, sf::Font& font) {
     while (node != nullptr && window.isOpen()) {
-        
+
         sf::Text questionText;
         questionText.setFont(font);
         questionText.setCharacterSize(36);
@@ -120,13 +115,13 @@ void traverseDecisionTree(sf::RenderWindow& window, DecisionNode* node, Revoluti
 
 
 
-        vector<sf::Text> optionTexts;
+        std::vector<sf::Text> optionTexts;
         for (size_t i = 0; i < node->options.size(); i++) {
             sf::Text optionText;
             optionText.setFont(font);
             optionText.setCharacterSize(30);
             optionText.setFillColor(sf::Color::Black);
-            optionText.setString(to_string(i + 1) + ". " + node->options[i].text);
+            optionText.setString(std::to_string(i + 1) + ". " + node->options[i].text);
             optionText.setPosition(20, window.getSize().y - 250 + i * 40);
             optionTexts.push_back(optionText);
         }
@@ -149,7 +144,6 @@ void traverseDecisionTree(sf::RenderWindow& window, DecisionNode* node, Revoluti
             }
             window.clear(sf::Color::White);
             window.draw(mapSprite);
-
             window.draw(questionText);
             for (auto& t : optionTexts)
                 window.draw(t);
@@ -160,19 +154,19 @@ void traverseDecisionTree(sf::RenderWindow& window, DecisionNode* node, Revoluti
         if (selectedOption >= 0) {
             //cout << "selectedOption :" << selectedOption << endl;
             DecisionOption& option = node->options[selectedOption];
-
+            
             // Update attributes.
             rev.updateAttributes(option.moraleEffect, option.resourceEffect, option.influenceEffect);
             rev.displayAttributes();
-            cout << option.historicalContext << endl;
+            std::cout << option.historicalContext << std::endl;
 
             if (!option.mapID.empty()) {
                 mapSprite.setTexture(mapManager.getTexture(option.mapID), true);
                 updateMapSprite(mapSprite, window);
                 //cout << "new map!\n";
             }
-            /*  cout << "Hello world 1\n";
-              cout << "\n";*/
+          /*  cout << "Hello world 1\n";
+            cout << "\n";*/
 
             if (!option.outcome.empty()) {
                 //cout << "Hello world 2\n";
@@ -204,8 +198,8 @@ void traverseDecisionTree(sf::RenderWindow& window, DecisionNode* node, Revoluti
             // Proceed to the next node.
             node = option.nextNode;
 
-            /*  cout << "Next node\n";
-              if (node == nullptr) cout << "null node";*/
+          /*  cout << "Next node\n";
+            if (node == nullptr) cout << "null node";*/
         }
     }
 }
@@ -282,8 +276,8 @@ int displayMainMenu(sf::RenderWindow& window, sf::Font& font) {
 int main() {
     sf::RenderWindow window(sf::VideoMode(2000, 1700), "Crossroads of Destiny: The Indian Uprising");
 
-
-    MapManager mapManager;
+    
+   MapManager mapManager;
     // Pre-loading all required maps
     mapManager.loadMap("main", "assets/temp/brave_rebel.png");
     mapManager.loadMap("Sepoy_Rebellion", "assets/temp/havildar.png");
@@ -304,64 +298,276 @@ int main() {
     mapManager.loadMap("Deobandi_Consolidate", "assets/maps/Deobandi_Consolidate.png");
     mapManager.loadMap("Deobandi_Khilafat", "assets/maps/Deobandi_Khilafat.png");
     mapManager.loadMap("Deobandi_Neutral", "assets/maps/Deobandi_Neutral.png");
-
-    // Load the font.
-    sf::Font font;
-    if (!font.loadFromFile("C:/Windows/Fonts/times.ttf")) {
-        cout << "Failed to load font!\n";
-        return -1;
-    }
-
+    
     sf::Sprite mapSprite;
     mapSprite.setTexture(mapManager.getTexture("main"), true);
     updateMapSprite(mapSprite, window);
+    //cout << "Main map set on position\n";
 
+    // Load sound effect (if needed)
+    /*sf::SoundBuffer explosionBuffer;
+    if (!explosionBuffer.loadFromFile("C:\\Users\\ASUS\\Documents\\All Codes\\CSE 4302 Project\\Arifin\\ConsoleApplication1\\assets\\sounds\\large-underwater-explosion-190270.wav")) {
+        std::cout << "Failed to load explosion sound!\n";
+        return -1;
+    }
+    sf::Sound explosionSound;
+    explosionSound.setBuffer(explosionBuffer);*/
+
+    // Load the font.
+    sf::Font font;
+    if (!font.loadFromFile("C:\\Windows\\Fonts\\arial.ttf")) {
+        std::cout << "Failed to load font!\n";
+        return -1;
+    }
 
     Revolution rev;
     int faction = displayMainMenu(window, font);
     DecisionNode* startingNode = nullptr;
 
-    ifstream file("decision_tree.json");
-    if (!file.is_open()) {
-        cerr << "Error: Could not open decision_tree.json" << endl;
-        return 1;
-    }
-
-    json decisionTree;
-    file >> decisionTree;
-    string currentNode = "start";
-    
-
     // -------------------- Building the Decision Tree --------------------
-    while (true) {
-        auto node = decisionTree[currentNode];
+    if (faction == 0) {
+        // --- Sepoy Rebellion ---
+        static DecisionNode sepoyNode1;
+        sepoyNode1.question = "British distributed greased cartridges, causing religious outrage. Revolt immediately?";
 
-        if (node.contains("question")) {
-            std::cout << node["question"].get<std::string>() << std::endl;
-            int choiceNum = 1;
-            for (const auto& choice : node["choices"]) {
-                std::cout << choiceNum++ << ". " << choice["text"].get<std::string>() << std::endl;
-            }
-            
-            int choice;
-            std::cin >> choice;
-            if (choice < 1 || choice > node["choices"].size()) {
-                std::cout << "Invalid choice." << std::endl;
-                continue;
-            }
-            
-            currentNode = node["choices"][choice - 1]["next"].get<std::string>();
-        }
-        else if (node.contains("outcome")) {
-            std::cout << node["outcome"].get<std::string>() << std::endl;
-            break;
-        }
-        else {
-            std::cout << "Error: Invalid Node" << std::endl;
-            break;
-        }
+        static DecisionOption sepoyOption1;
+        sepoyOption1.text = "Launch Revolt Immediately";
+        sepoyOption1.moraleEffect += 30;
+        sepoyOption1.resourceEffect += 20;
+        sepoyOption1.influenceEffect += 20;
+        sepoyOption1.historicalContext = "In 1857, the Sepoys revolted immediately after the cartridge controversy, igniting India's first major uprising.";
+        sepoyOption1.mapID = "Sepoy_Rebellion";
+        //sepoyOption1.outcome = "Sepoy rebellion starts!";
+
+        static DecisionOption sepoyOption1b;
+        sepoyOption1b.text = "Delay Revolt";
+        sepoyOption1b.moraleEffect += -10;
+        sepoyOption1b.resourceEffect += 10;
+        sepoyOption1b.influenceEffect += -5;
+        sepoyOption1b.historicalContext = "Delaying the revolt led to missed opportunities and a fragmented resistance.";
+        sepoyOption1b.mapID = "Sepoy_Delayed";
+        //sepoyOption1b.outcome = "Sepoy rebellion is delayed!";
+
+
+        static DecisionNode sepoyNode2;
+        sepoyNode2.question = "Declare Bahadur Shah Zafar as Emperor?";
+        //cout << "sepoy node 2\n";
+
+        static DecisionOption sepoyOption2;
+        sepoyOption2.text = "Yes";
+        sepoyOption2.moraleEffect += 40;
+        sepoyOption2.resourceEffect += 10;
+        sepoyOption2.influenceEffect += 50;
+        sepoyOption2.historicalContext = "Rebels declared Zafar as their symbolic leader, lending legitimacy to the uprising.";
+        sepoyOption2.mapID = "Sepoy_Captured_Delhi";
+
+        static DecisionOption sepoyOption2b;
+        sepoyOption2b.text = "No";
+        sepoyOption2b.moraleEffect += -20;
+        sepoyOption2b.resourceEffect += 0;
+        sepoyOption2b.influenceEffect += -30;
+        sepoyOption2b.historicalContext = "Without a clear leader, the rebellion became fragmented and less cohesive.";
+        sepoyOption2b.mapID = "Sepoy_Fragmented";
+
+        static DecisionNode sepoyNode3;
+        sepoyNode3.question = "Form alliances with regional princes?";
+
+        static DecisionOption sepoyoption4;
+        sepoyoption4.text = "Yes";
+        sepoyoption4.moraleEffect += 30;
+        sepoyoption4.resourceEffect += 40;
+        sepoyoption4.influenceEffect += 30;
+        sepoyoption4.historicalContext = "Regional alliances bolstered the rebellion with additional military and financial strength.";
+        sepoyoption4.mapID = "Sepoy_Alliances";
+
+        static DecisionOption sepoyoption4b;
+        sepoyoption4b.text = "No";
+        sepoyoption4b.moraleEffect += -15;
+        sepoyoption4b.resourceEffect += -20;
+        sepoyoption4b.influenceEffect += -25;
+        sepoyoption4b.historicalContext = "Without alliances, the rebellion struggled to sustain itself.";
+        sepoyoption4b.mapID = "Sepoy_Isolated";
+
+        static DecisionNode sepoyNode4;
+        sepoyNode4.question = "Sabotage British supply lines?";
+
+        static DecisionOption sepoyOption4;
+        sepoyOption4.text = "Yes";
+        sepoyOption4.moraleEffect += 20;
+        sepoyOption4.resourceEffect += -10;
+        sepoyOption4.influenceEffect += 30;
+        sepoyOption4.historicalContext = "Sabotaging supply lines disrupted British logistics and created an advantage.";
+        sepoyOption4.mapID = "Sepoy_Sabotage";
+
+        static DecisionOption sepoyOption4b;
+        sepoyOption4b.text = "No";
+        sepoyOption4b.moraleEffect += -10;
+        sepoyOption4b.resourceEffect += 0;
+        sepoyOption4b.influenceEffect += -20;
+        sepoyOption4b.historicalContext = "Not disrupting supplies allowed the British to regroup and counterattack.";
+        sepoyOption4b.mapID = "Sepoy_NoSabotage";
+
+        static DecisionNode sepoyNode5;
+        sepoyNode5.question = "Final battle at Kanpur & Lucknow?";
+
+        static DecisionOption sepoyOption5;
+        sepoyOption5.text = "Aggressive Attack";
+        sepoyOption5.moraleEffect += -60;
+        sepoyOption5.resourceEffect += -70;
+        sepoyOption5.influenceEffect += -50;
+        sepoyOption5.historicalContext = "An aggressive attack initially yielded gains but ended in overwhelming defeat.";
+        sepoyOption5.mapID = "Sepoy_FinalBattle";
+        sepoyOption5.outcome = "Defeat - Rebellion suppressed historically.";
+
+        static DecisionOption sepoyOption5b;
+        sepoyOption5b.text = "Defensive Position";
+        sepoyOption5b.moraleEffect += 10;
+        sepoyOption5b.resourceEffect += 0;
+        sepoyOption5b.influenceEffect += 20;
+        sepoyOption5b.historicalContext = "Taking a defensive stance prolonged the conflict, avoiding immediate defeat.";
+        sepoyOption5b.mapID = "Sepoy_Defensive";
+        sepoyOption5b.outcome = "STALEMENT - Continued resistance.";
+
+        
+        sepoyOption1.nextNode = &sepoyNode2;
+        sepoyOption1b.nextNode = &sepoyNode2;
+        sepoyNode1.options.push_back(sepoyOption1);
+        sepoyNode1.options.push_back(sepoyOption1b);
+
+        //sepoyOption1.nextNode = &sepoyNode2;
+        //sepoyOption1b.nextNode = &sepoyNode2;
+       /* cout << "nextnode is sepoy node 2\n";
+        if (sepoyOption1b.nextNode == nullptr) cout << "Zarif is sad\n";
+        else cout << "Zarif is happy\n";*/
+
+        sepoyOption2.nextNode = &sepoyNode3;
+        sepoyOption2b.nextNode = &sepoyNode3;
+        sepoyNode2.options.push_back(sepoyOption2);
+        sepoyNode2.options.push_back(sepoyOption2b);
+        
+        sepoyoption4.nextNode = &sepoyNode4;
+        sepoyoption4b.nextNode = &sepoyNode4;
+        sepoyNode3.options.push_back(sepoyoption4);
+        sepoyNode3.options.push_back(sepoyoption4b);
+        
+        sepoyOption4.nextNode = &sepoyNode5;
+        sepoyOption4b.nextNode = &sepoyNode5;
+        sepoyNode4.options.push_back(sepoyOption4);
+        sepoyNode4.options.push_back(sepoyOption4b);
+        
+
+        sepoyNode5.options.push_back(sepoyOption5);
+        sepoyNode5.options.push_back(sepoyOption5b);
+
+        startingNode = &sepoyNode1;
+    }
+    else {
+        // --- Deobandi Movement Branch ---
+        static DecisionNode deobandiNode1;
+        deobandiNode1.question = "Establish Darul Uloom Seminary at Deoband immediately?";
+
+        static DecisionOption deobandiOption1;
+        deobandiOption1.text = "Establish Immediately";
+        deobandiOption1.moraleEffect += 20;
+        deobandiOption1.resourceEffect += 10;
+        deobandiOption1.influenceEffect += 40;
+        deobandiOption1.historicalContext = "Darul Uloom Deoband, founded in 1866, became a center of cultural resistance.";
+        deobandiOption1.mapID = "Deobandi_Established";
+
+        static DecisionOption deobandiOption1b;
+        deobandiOption1b.text = "Delay Establishment";
+        deobandiOption1b.moraleEffect += -10;
+        deobandiOption1b.resourceEffect += 5;
+        deobandiOption1b.influenceEffect += -20;
+        deobandiOption1b.historicalContext = "A delay allowed British cultural influence to gain a foothold, weakening early resistance.";
+        deobandiOption1b.mapID = "Deobandi_Delayed";
+
+        static DecisionNode deobandiNode2;
+        deobandiNode2.question = "Respond to British crackdown on madrasas?";
+
+        static DecisionOption deobandiOption2;
+        deobandiOption2.text = "Peaceful Civil Disobedience";
+        deobandiOption2.moraleEffect += 10;
+        deobandiOption2.resourceEffect += 0;
+        deobandiOption2.influenceEffect += 30;
+        deobandiOption2.historicalContext = "Peaceful resistance earned widespread public sympathy and legitimacy.";
+        deobandiOption2.mapID = "Deobandi_Peaceful";
+
+        static DecisionOption deobandiOption2b;
+        deobandiOption2b.text = "Resist Aggressively";
+        deobandiOption2b.moraleEffect += -20;
+        deobandiOption2b.resourceEffect += -10;
+        deobandiOption2b.influenceEffect += -30;
+        deobandiOption2b.historicalContext = "Aggressive measures resulted in a brutal crackdown and loss of support.";
+        deobandiOption2b.mapID = "Deobandi_Aggressive";
+
+        static DecisionNode deobandiNode3;
+        deobandiNode3.question = "Expand madrasa network into Bengal & Punjab?";
+
+        static DecisionOption deobandioption4;
+        deobandioption4.text = "Expand Widely";
+        deobandioption4.moraleEffect += 10;
+        deobandioption4.resourceEffect += -20;
+        deobandioption4.influenceEffect += 50;
+        deobandioption4.historicalContext = "Expanding the network boosted regional influence and resistance.";
+        deobandioption4.mapID = "Deobandi_Expansion";
+
+        static DecisionOption deobandioption4b;
+        deobandioption4b.text = "Consolidate Locally";
+        deobandioption4b.moraleEffect += -5;
+        deobandioption4b.resourceEffect += 0;
+        deobandioption4b.influenceEffect += -20;
+        deobandioption4b.historicalContext = "Focusing locally limited broader influence but maintained stability.";
+        deobandioption4b.mapID = "Deobandi_Consolidate";
+
+        static DecisionNode deobandiNode4;
+        deobandiNode4.question = "Support Khilafat Movement?";
+
+        static DecisionOption deobandiOption4;
+        deobandiOption4.text = "Support Khilafat";
+        deobandiOption4.moraleEffect += 20;
+        deobandiOption4.resourceEffect += 20;
+        deobandiOption4.influenceEffect += 50;
+        deobandiOption4.historicalContext = "Backing the Khilafat Movement raised international prestige.";
+        deobandiOption4.mapID = "Deobandi_Khilafat";
+        deobandiOption4.outcome = "Victory - Strong international reputation.";
+
+        static DecisionOption deobandiOption4b;
+        deobandiOption4b.text = "Stay Neutral";
+        deobandiOption4b.moraleEffect += -10;
+        deobandiOption4b.resourceEffect += 0;
+        deobandiOption4b.influenceEffect += -20;
+        deobandiOption4b.historicalContext = "Neutrality limited international support and slowed momentum.";
+        deobandiOption4b.mapID = "Deobandi_Neutral";
+        deobandiOption4b.outcome = "STALEMENT";
+
+        
+        deobandiOption1.nextNode = &deobandiNode2;
+        deobandiOption1b.nextNode = &deobandiNode2;
+        deobandiNode1.options.push_back(deobandiOption1);
+        deobandiNode1.options.push_back(deobandiOption1b);
+        
+        deobandiOption2.nextNode = &deobandiNode3;
+        deobandiOption2b.nextNode = &deobandiNode3;
+        deobandiNode2.options.push_back(deobandiOption2);
+        deobandiNode2.options.push_back(deobandiOption2b);
+        
+        deobandioption4.nextNode = &deobandiNode4;
+        deobandioption4b.nextNode = &deobandiNode4;
+        deobandiNode3.options.push_back(deobandioption4);
+        deobandiNode3.options.push_back(deobandioption4b);
+        
+
+        deobandiNode4.options.push_back(deobandiOption4);
+        deobandiNode4.options.push_back(deobandiOption4b);
+        
+
+        startingNode = &deobandiNode1;
     }
 
+    traverseDecisionTree(window, startingNode, rev, mapSprite, mapManager, font);
+
+    
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
